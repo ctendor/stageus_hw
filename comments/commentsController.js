@@ -14,7 +14,7 @@ const { idxRegx } = require("../constants/regx");
 const createComment = (req, res) => {
   try {
     const { articleIdx } = req.params;
-    const { content } = req.body;
+    const { content } = req.body; 
 
     if (!idxRegx.test(articleIdx))
       throw customError("유효하지 않은 게시글 IDX입니다.", 400);

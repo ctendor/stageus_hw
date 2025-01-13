@@ -8,7 +8,7 @@ const {
   unlikeArticle,
 } = require("../repositories/articlesRepository");
 const customError = require("../utils/customError");
-const { idxRegx, titleRegx, categoryRegx } = require("../constants/regx");
+const { idxRegx, titleRegx, categoryRegx } = require("../constants/regx"); 
 
 const validateArticleInput = ({ title, content, category }) => {
   if (!title || !content || !category)
