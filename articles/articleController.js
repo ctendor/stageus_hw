@@ -8,12 +8,10 @@ const createArticle = asyncWrapper(async (req, res) => {
     content,
     category,
   });
-  res
-    .status(201)
-    .send({
-      message: "게시글이 생성되었습니다.",
-      articleIdx: newArticle.articleIdx,
-    });
+  res.status(201).send({
+    message: "게시글이 생성되었습니다.",
+    articleIdx: newArticle.articleIdx,
+  });
 });
 
 const getArticles = asyncWrapper(async (req, res) => {
