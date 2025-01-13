@@ -1,13 +1,17 @@
 const customError = require("../utils/customError");
 
 const authMiddleware = (req, res, next) => {
-  if (!req.session.user) {
-    return next(customError("로그인이 필요합니다.", 401));
+  try {
+    if (!req.session) {
+      throw customError("세션이 존재하지 않습니다. 다시 로그인해주세요.", 401);
+    }
+    if (!req.session.user) {
+      throw customError("로그인이 필요합니다.", 401);
+    }
+    next();
+  } catch (err) {
+    next(err);
   }
-  if (req.session.user != req.user) {
-    return next(customError("권한이 없습니다"), 403);
-  }
-  next();
 };
 
 module.exports = authMiddleware;
