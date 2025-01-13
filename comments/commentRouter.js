@@ -1,15 +1,21 @@
 const express = require("express");
 const commentController = require("./commentController");
+const { checkSession } = require("../users/sessionManager");
 const authMiddleware = require("../middlewares/authMiddleware");
+
 const router = express.Router();
+
+router.get(
+  "/:articleIdx/comments",
+  checkSession,
+  commentController.getCommentsByArticle
+);
 
 router.post(
   "/:articleIdx/comments",
   authMiddleware,
   commentController.createComment
 );
-router.get("/:articleIdx/comments", commentController.getCommentsByArticle);
-router.get("/:articleIdx/comments/:commentIdx", commentController.getComment);
 router.put(
   "/:articleIdx/comments/:commentIdx",
   authMiddleware,
@@ -20,6 +26,7 @@ router.delete(
   authMiddleware,
   commentController.deleteCommentController
 );
+
 router.post(
   "/:articleIdx/comments/:commentIdx/like",
   authMiddleware,
