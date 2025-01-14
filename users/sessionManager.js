@@ -5,11 +5,6 @@ const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || "default_secret",
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60,
-  },
 });
 
 const createSession = (req, user) => {
@@ -36,8 +31,31 @@ const destroySession = (req) => {
   });
 };
 
+const checkOwnership = (resourceIdField) => {
+  return async (req, res, next) => {
+    try {
+      const { user } = req.session;
+      const resourceId = req.params[resourceIdField];
+
+      const resource = await findResourceById(resourceId);
+      if (!resource) {
+        throw customError("자원을 찾을 수 없습니다.", 404);
+      }
+
+      if (resource.authorId !== user.id) {
+        throw customError("권한이 없습니다.", 403);
+      }
+
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+
 module.exports = {
   sessionMiddleware,
   createSession,
   destroySession,
+  checkOwnership,
 };
