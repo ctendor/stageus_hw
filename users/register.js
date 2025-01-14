@@ -35,8 +35,8 @@ router.post(
     }
 
     const [result] = await db.query(
-      "INSERT INTO users (username, password, name, createdAt) VALUES (?, ?, ?, NOW())",
-      [username, password, name]
+      "INSERT INTO users (username, password, createdAt) VALUES (?, ?, NOW())",
+      [username, password]
     );
 
     if (!result.insertId) {
