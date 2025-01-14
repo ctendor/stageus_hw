@@ -1,5 +1,6 @@
 const session = require("express-session");
 const customError = require("../utils/customError");
+const { findResourceById } = require("../utils/findResource"); // 경로 확인
 
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || 1234,
@@ -34,6 +35,13 @@ const destroySession = (req) => {
 const checkOwnership = (resourceIdField) => {
   return async (req, res, next) => {
     try {
+      const { articleId } = req.params;
+
+      if (!articleId) {
+        throw customError("게시글 ID가 제공되지 않았습니다.", 404);
+      }
+
+      const article = await findResourceById("articles", articleId);
       const { user } = req.session;
       const resourceId = req.params[resourceIdField];
 

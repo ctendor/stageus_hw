@@ -2,8 +2,12 @@ const express = require("express");
 const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 const asyncWrapper = require("../utils/asyncWrapper");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
+
+const SECRET_KEY = process.env.JWT_SECRET;
+const TOKEN_EXPIRATION = "1h"; // 엑세스 토큰 만료 시간 (1시간)
 
 router.post(
   "/",
@@ -27,20 +31,20 @@ router.post(
       throw customError("비밀번호가 올바르지 않습니다.", 401);
     }
 
+    const accessToken = jwt.sign(
+      { id: user.idx, username: user.username },
+      SECRET_KEY,
+      { expiresIn: TOKEN_EXPIRATION }
+    );
+
     req.session.user = {
       id: user.id,
       username: user.username,
     };
 
-    res.cookie("connect.sid", req.sessionID, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60,
-      secure: true,
-    });
-
     res.status(200).send({
       message: "로그인 성공",
-      user: req.session.user,
+      accessToken,
     });
   })
 );

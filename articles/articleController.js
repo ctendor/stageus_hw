@@ -1,11 +1,12 @@
 const customError = require("../utils/customError");
 const asyncWrapper = require("../utils/asyncWrapper");
 const articleService = require("./articleService");
-const { idxRegx, titleRegx, categoryRegx } = require("../constants/regx");
+const { titleRegx, categoryRegx } = require("../constants/regx");
 
 const createArticle = asyncWrapper(async (req, res) => {
   const { title, content, category } = req.body;
-  const { id: authorIdx } = req.session.user;
+  const { id: authorIdx } = req.user;
+
   if (!title || !content || !category) {
     throw customError("제목, 내용, 카테고리를 모두 입력해주세요.", 400);
   }
@@ -32,10 +33,6 @@ const createArticle = asyncWrapper(async (req, res) => {
 const getArticle = asyncWrapper(async (req, res) => {
   const { id } = req.params;
 
-  if (!idxRegx.test(id)) {
-    throw customError("유효하지 않은 IDX입니다.", 400);
-  }
-
   const article = await articleService.getArticleById(id);
   if (!article) {
     throw customError("게시글을 찾을 수 없습니다.", 404);
@@ -45,12 +42,9 @@ const getArticle = asyncWrapper(async (req, res) => {
 });
 
 const updateArticle = asyncWrapper(async (req, res) => {
-  const { id } = req.params;
+  const { articleId } = req.params;
   const { title, content, category } = req.body;
 
-  if (!idxRegx.test(id)) {
-    throw customError("유효하지 않은 IDX입니다.", 400);
-  }
   if (title && !titleRegx.test(title)) {
     throw customError("제목은 1~20자이어야 합니다.", 400);
   }
@@ -58,17 +52,13 @@ const updateArticle = asyncWrapper(async (req, res) => {
     throw customError("유효하지 않은 카테고리입니다.", 400);
   }
 
-  await articleService.updateArticle(id, { title, content, category });
+  await articleService.updateArticle(articleId, { title, content, category });
 
   res.status(200).send({ message: "게시글이 수정되었습니다." });
 });
 
 const deleteArticle = asyncWrapper(async (req, res) => {
   const { id } = req.params;
-
-  if (!idxRegx.test(id)) {
-    throw customError("유효하지 않은 IDX입니다.", 400);
-  }
 
   await articleService.deleteArticle(id);
 
@@ -78,20 +68,12 @@ const deleteArticle = asyncWrapper(async (req, res) => {
 const likeArticle = asyncWrapper(async (req, res) => {
   const { id } = req.params;
 
-  if (!idxRegx.test(id)) {
-    throw customError("유효하지 않은 IDX입니다.", 400);
-  }
-
   const likes = await articleService.likeArticle(id);
   res.status(200).send({ message: "게시글에 좋아요를 눌렀습니다.", likes });
 });
 
 const unlikeArticle = asyncWrapper(async (req, res) => {
   const { id } = req.params;
-
-  if (!idxRegx.test(id)) {
-    throw customError("유효하지 않은 IDX입니다.", 400);
-  }
 
   const likes = await articleService.unlikeArticle(id);
   res.status(200).send({ message: "게시글 좋아요가 취소되었습니다.", likes });

@@ -1,22 +1,25 @@
+const jwt = require("jsonwebtoken");
 const customError = require("../utils/customError");
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 const authMiddleware = (req, res, next) => {
   try {
-    const sessionCookie = req.cookies["connect.sid"];
-    console.log("요청받은 쿠키:", sessionCookie);
-    console.log("세션 정보:", req.session);
+    const authHeader = req.headers.authorization;
 
-    if (!req.session && !sessionCookie) {
-      throw customError("세션이 존재하지 않습니다. 다시 로그인해주세요.", 401);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw customError("인증 토큰이 필요합니다.", 401);
     }
 
-    if (!req.session?.user) {
-      throw customError("로그인이 필요합니다.", 401);
-    }
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+
+    req.user = decoded;
 
     next();
   } catch (err) {
-    next(err);
+    next(customError("유효하지 않은 토큰입니다.", 403));
   }
 };
 

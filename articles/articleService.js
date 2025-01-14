@@ -3,7 +3,7 @@ const customError = require("../utils/customError");
 
 const createArticle = async ({ title, content, category, authorIdx }) => {
   const [result] = await db.query(
-    "INSERT INTO articles (title, content, category, authorIdx createdAt, updatedAt, likes) VALUES (?, ?, ?, NOW(), NOW(), 0)",
+    "INSERT INTO articles (title, content, category, authorIdx, likes, createdAt, updatedAt) VALUES (?, ?, ?, ?, 0, NOW(), NOW())",
     [title, content, category, authorIdx]
   );
 

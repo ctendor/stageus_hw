@@ -9,12 +9,14 @@ router.get("/", authMiddleware, articleController.getArticle);
 router.get("/:id", authMiddleware, articleController.getArticle);
 
 router.post("/", authMiddleware, articleController.createArticle);
+
 router.put(
-  "/:id",
+  "/:articleId",
   authMiddleware,
-  checkOwnership("params.id"),
+  checkOwnership,
   articleController.updateArticle
 );
+
 router.delete(
   "/:id",
   authMiddleware,
