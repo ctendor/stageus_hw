@@ -1,7 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const articlesRouter = require("./routes/articles");
-const authMiddleware = require("./middlewares/auth");
+const authMiddleware = require("./middlewares/authMiddleware");
 const app = express();
 
 const maria = require("./database/connect/maria");
@@ -11,13 +11,9 @@ const PORT = process.env.PORT || 8000;
 
 app.use(
   session({
-    secret: "세션 키",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: true,
-      maxAge: 1000 * 60 * 60,
-    },
   })
 );
 app.use(express.json());
