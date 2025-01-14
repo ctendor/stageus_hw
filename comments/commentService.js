@@ -1,10 +1,9 @@
-// commentsService.js
 const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 
 const addComment = async ({ articleIdx, content }) => {
   const [result] = await db.query(
-    "INSERT INTO comments (articleId, content, createdAt, updatedAt, likes) VALUES (?, ?, NOW(), NOW(), 0)",
+    "INSERT INTO comments (articleIdx, content, createdAt, updatedAt, likes) VALUES (?, ?, NOW(), NOW(), 0)",
     [articleIdx, content]
   );
 
@@ -17,7 +16,7 @@ const addComment = async ({ articleIdx, content }) => {
 
 const getCommentsByArticle = async (articleIdx) => {
   const [comments] = await db.query(
-    "SELECT * FROM comments WHERE articleId = ? ORDER BY createdAt DESC",
+    "SELECT * FROM comments WHERE articleIdx = ? ORDER BY createdAt DESC",
     [articleIdx]
   );
 
@@ -29,7 +28,7 @@ const getCommentsByArticle = async (articleIdx) => {
 };
 
 const getCommentById = async (commentIdx) => {
-  const [comments] = await db.query("SELECT * FROM comments WHERE id = ?", [
+  const [comments] = await db.query("SELECT * FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
 
@@ -42,7 +41,7 @@ const getCommentById = async (commentIdx) => {
 
 const updateComment = async (commentIdx, { content }) => {
   const [result] = await db.query(
-    "UPDATE comments SET content = ?, updatedAt = NOW() WHERE id = ?",
+    "UPDATE comments SET content = ?, updatedAt = NOW() WHERE idx = ?",
     [content, commentIdx]
   );
 
@@ -52,7 +51,7 @@ const updateComment = async (commentIdx, { content }) => {
 };
 
 const deleteComment = async (commentIdx) => {
-  const [result] = await db.query("DELETE FROM comments WHERE id = ?", [
+  const [result] = await db.query("DELETE FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
 
@@ -63,7 +62,7 @@ const deleteComment = async (commentIdx) => {
 
 const likeComment = async (commentIdx) => {
   const [result] = await db.query(
-    "UPDATE comments SET likes = likes + 1 WHERE id = ?",
+    "UPDATE comments SET likes = likes + 1 WHERE idx = ?",
     [commentIdx]
   );
 
@@ -71,7 +70,7 @@ const likeComment = async (commentIdx) => {
     throw customError("댓글 좋아요 처리에 실패했습니다.", 404);
   }
 
-  const [comment] = await db.query("SELECT likes FROM comments WHERE id = ?", [
+  const [comment] = await db.query("SELECT likes FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
   return comment[0].likes;
@@ -79,7 +78,7 @@ const likeComment = async (commentIdx) => {
 
 const unlikeComment = async (commentIdx) => {
   const [result] = await db.query(
-    "UPDATE comments SET likes = likes - 1 WHERE id = ? AND likes > 0",
+    "UPDATE comments SET likes = likes - 1 WHERE idx = ? AND likes > 0",
     [commentIdx]
   );
 
@@ -87,7 +86,7 @@ const unlikeComment = async (commentIdx) => {
     throw customError("댓글 좋아요 취소 처리에 실패했습니다.", 404);
   }
 
-  const [comment] = await db.query("SELECT likes FROM comments WHERE id = ?", [
+  const [comment] = await db.query("SELECT likes FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
   return comment[0].likes;

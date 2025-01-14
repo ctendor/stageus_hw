@@ -37,7 +37,7 @@ const getArticles = async ({ search, category }) => {
 };
 
 const getArticleById = async (id) => {
-  const [articles] = await db.query("SELECT * FROM articles WHERE id = ?", [
+  const [articles] = await db.query("SELECT * FROM articles WHERE idx = ?", [
     id,
   ]);
   if (articles.length === 0) {
@@ -48,7 +48,7 @@ const getArticleById = async (id) => {
 
 const updateArticle = async (id, { title, content, category }) => {
   const [result] = await db.query(
-    "UPDATE articles SET title = ?, content = ?, category = ?, updatedAt = NOW() WHERE id = ?",
+    "UPDATE articles SET title = ?, content = ?, category = ?, updatedAt = NOW() WHERE idx = ?",
     [title, content, category, id]
   );
 
@@ -58,7 +58,7 @@ const updateArticle = async (id, { title, content, category }) => {
 };
 
 const deleteArticle = async (id) => {
-  const [result] = await db.query("DELETE FROM articles WHERE id = ?", [id]);
+  const [result] = await db.query("DELETE FROM articles WHERE idx = ?", [id]);
   if (result.affectedRows === 0) {
     throw customError("게시글 삭제에 실패했습니다.", 404);
   }
@@ -66,7 +66,7 @@ const deleteArticle = async (id) => {
 
 const likeArticle = async (id) => {
   const [result] = await db.query(
-    "UPDATE articles SET likes = likes + 1 WHERE id = ?",
+    "UPDATE articles SET likes = likes + 1 WHERE idx = ?",
     [id]
   );
 
@@ -74,7 +74,7 @@ const likeArticle = async (id) => {
     throw customError("좋아요 처리에 실패했습니다.", 404);
   }
 
-  const [article] = await db.query("SELECT likes FROM articles WHERE id = ?", [
+  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
     id,
   ]);
   return article[0].likes;
@@ -82,7 +82,7 @@ const likeArticle = async (id) => {
 
 const unlikeArticle = async (id) => {
   const [result] = await db.query(
-    "UPDATE articles SET likes = likes - 1 WHERE id = ? AND likes > 0",
+    "UPDATE articles SET likes = likes - 1 WHERE idx = ? AND likes > 0",
     [id]
   );
 
@@ -90,7 +90,7 @@ const unlikeArticle = async (id) => {
     throw customError("좋아요 취소 처리에 실패했습니다.", 404);
   }
 
-  const [article] = await db.query("SELECT likes FROM articles WHERE id = ?", [
+  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
     id,
   ]);
   return article[0].likes;
