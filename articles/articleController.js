@@ -5,7 +5,7 @@ const { idxRegx, titleRegx, categoryRegx } = require("../constants/regx");
 
 const createArticle = asyncWrapper(async (req, res) => {
   const { title, content, category } = req.body;
-
+  const { id: authorIdx } = req.session.user;
   if (!title || !content || !category) {
     throw customError("제목, 내용, 카테고리를 모두 입력해주세요.", 400);
   }
@@ -20,6 +20,7 @@ const createArticle = asyncWrapper(async (req, res) => {
     title,
     content,
     category,
+    authorIdx,
   });
 
   res.status(201).send({

@@ -30,8 +30,13 @@ router.post(
     req.session.user = {
       id: user.id,
       username: user.username,
-      name: user.name,
     };
+
+    res.cookie("connect.sid", req.sessionID, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60,
+      secure: true,
+    });
 
     res.status(200).send({
       message: "로그인 성공",

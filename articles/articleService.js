@@ -1,10 +1,10 @@
 const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 
-const addArticle = async ({ title, content, category }) => {
+const createArticle = async ({ title, content, category, authorIdx }) => {
   const [result] = await db.query(
-    "INSERT INTO articles (title, content, category, createdAt, updatedAt, likes) VALUES (?, ?, ?, NOW(), NOW(), 0)",
-    [title, content, category]
+    "INSERT INTO articles (title, content, category, authorIdx createdAt, updatedAt, likes) VALUES (?, ?, ?, NOW(), NOW(), 0)",
+    [title, content, category, authorIdx]
   );
 
   if (!result.insertId) {
@@ -104,7 +104,7 @@ const unlikeArticle = async (articleId) => {
 };
 
 module.exports = {
-  addArticle,
+  createArticle,
   getArticles,
   getArticleById,
   updateArticle,
