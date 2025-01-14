@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
-router.get("/", authMiddleware, articleController.getArticles);
+router.get("/", authMiddleware, articleController.getArticle);
 router.get("/:id", authMiddleware, articleController.getArticle);
 
 router.post("/", authMiddleware, articleController.createArticle);

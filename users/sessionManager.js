@@ -1,5 +1,5 @@
 const session = require("express-session");
-const customError = require("./customError");
+const customError = require("../utils/customError");
 
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || "default_secret",

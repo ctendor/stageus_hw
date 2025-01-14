@@ -11,7 +11,7 @@ const addArticle = async ({ title, content, category }) => {
     throw customError("게시글 생성에 실패했습니다.", 500);
   }
 
-  return { articleIdx: result.insertId };
+  return result.insertId;
 };
 
 const getArticles = async ({ search, category }) => {
@@ -29,27 +29,25 @@ const getArticles = async ({ search, category }) => {
   }
 
   const [articles] = await db.query(query, params);
-  if (articles.length === 0) {
-    throw customError("게시글이 존재하지 않습니다.", 404);
-  }
-
   return articles;
 };
 
-const getArticleById = async (id) => {
+const getArticleById = async (articleId) => {
   const [articles] = await db.query("SELECT * FROM articles WHERE idx = ?", [
-    id,
+    articleId,
   ]);
+
   if (articles.length === 0) {
     throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404);
   }
+
   return articles[0];
 };
 
-const updateArticle = async (id, { title, content, category }) => {
+const updateArticle = async (articleId, { title, content, category }) => {
   const [result] = await db.query(
     "UPDATE articles SET title = ?, content = ?, category = ?, updatedAt = NOW() WHERE idx = ?",
-    [title, content, category, id]
+    [title, content, category, articleId]
   );
 
   if (result.affectedRows === 0) {
@@ -57,43 +55,52 @@ const updateArticle = async (id, { title, content, category }) => {
   }
 };
 
-const deleteArticle = async (id) => {
-  const [result] = await db.query("DELETE FROM articles WHERE idx = ?", [id]);
+const deleteArticle = async (articleId) => {
+  const [result] = await db.query("DELETE FROM articles WHERE idx = ?", [
+    articleId,
+  ]);
+
   if (result.affectedRows === 0) {
     throw customError("게시글 삭제에 실패했습니다.", 404);
   }
 };
 
-const likeArticle = async (id) => {
+const getLikes = async (articleId) => {
+  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
+    articleId,
+  ]);
+
+  if (article.length === 0) {
+    throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404);
+  }
+
+  return article[0].likes;
+};
+
+const likeArticle = async (articleId) => {
   const [result] = await db.query(
     "UPDATE articles SET likes = likes + 1 WHERE idx = ?",
-    [id]
+    [articleId]
   );
 
   if (result.affectedRows === 0) {
     throw customError("좋아요 처리에 실패했습니다.", 404);
   }
 
-  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
-    id,
-  ]);
-  return article[0].likes;
+  return await getLikes(articleId);
 };
 
-const unlikeArticle = async (id) => {
+const unlikeArticle = async (articleId) => {
   const [result] = await db.query(
     "UPDATE articles SET likes = likes - 1 WHERE idx = ? AND likes > 0",
-    [id]
+    [articleId]
   );
 
   if (result.affectedRows === 0) {
     throw customError("좋아요 취소 처리에 실패했습니다.", 404);
   }
 
-  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
-    id,
-  ]);
-  return article[0].likes;
+  return await getLikes(articleId);
 };
 
 module.exports = {
