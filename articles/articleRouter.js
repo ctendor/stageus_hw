@@ -13,14 +13,14 @@ router.post("/", authMiddleware, articleController.createArticle);
 router.put(
   "/:articleId",
   authMiddleware,
-  checkOwnership,
+  checkOwnership("articles", "articleId"),
   articleController.updateArticle
 );
 
 router.delete(
-  "/:id",
+  "/:articleId",
   authMiddleware,
-  checkOwnership("params.id"),
+  checkOwnership("articles", "articleId"),
   articleController.deleteArticle
 );
 

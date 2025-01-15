@@ -32,25 +32,25 @@ const destroySession = (req) => {
   });
 };
 
-const checkOwnership = (resourceIdField) => {
+const checkOwnership = (resourceTable, resourceIdField) => {
   return async (req, res, next) => {
     try {
-      const { articleId } = req.params;
-
-      if (!articleId) {
-        throw customError("게시글 ID가 제공되지 않았습니다.", 404);
+      const resourceId = req.params[resourceIdField];
+      if (!resourceId) {
+        throw customError("자원 ID가 제공되지 않았습니다.", 400);
       }
 
-      const article = await findResourceById("articles", articleId);
-      const { user } = req.session;
-      const resourceId = req.params[resourceIdField];
-
-      const resource = await findResourceById(resourceId);
+      const resource = await findResourceById(resourceTable, resourceId);
       if (!resource) {
         throw customError("자원을 찾을 수 없습니다.", 404);
       }
 
-      if (resource.authorId !== user.id) {
+      const { user } = req.session;
+      if (!user) {
+        throw customError("로그인이 필요합니다.", 401);
+      }
+
+      if (resource.authorIdx !== user.id) {
         throw customError("권한이 없습니다.", 403);
       }
 
@@ -61,6 +61,7 @@ const checkOwnership = (resourceIdField) => {
   };
 };
 
+module.exports = checkOwnership;
 module.exports = {
   sessionMiddleware,
   createSession,
