@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const articlesRouter = require("./articles/articleRouter");
+const commentRouter = require("./comments/commentRouter"); // 댓글 라우터 추가
 const db = require("./utils/dbConnect");
 const registerRoutes = require("./users/register");
 const loginRoutes = require("./users/login");
@@ -31,15 +32,12 @@ app.get("/protected", (req, res) => {
   try {
     const authHeader = req.headers.authorization;
 
-    // Authorization 헤더 확인
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw customError("인증 토큰이 필요합니다.", 401);
+      throw new Error("인증 토큰이 필요합니다.");
     }
-    const token = authHeader.split(" ")[1];
-    console.log("요청받은 토큰:", token);
 
+    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, SECRET_KEY);
-    console.log("디코딩된 사용자 정보:", decoded);
 
     res.status(200).send({
       message: `안녕하세요, ${decoded.username}님!`,
@@ -49,7 +47,9 @@ app.get("/protected", (req, res) => {
     res.status(403).send({ message: "유효하지 않은 토큰입니다." });
   }
 });
+
 app.use("/articles", articlesRouter);
+app.use("/articles", commentRouter);
 app.use("/register", registerRoutes);
 app.use("/login", loginRoutes);
 
