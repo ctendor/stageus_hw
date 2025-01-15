@@ -12,10 +12,10 @@ const authMiddleware = (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    console.log("요청된 토큰:", token); // 토큰 로그 출력
+    console.log("요청된 토큰:", token);
 
     const decoded = jwt.verify(token, SECRET_KEY);
-    console.log("디코딩된 사용자 정보:", decoded); // 디코딩된 사용자 정보 출력
+    console.log("디코딩된 사용자 정보:", decoded);
 
     req.user = decoded;
     next();

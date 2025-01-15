@@ -1,12 +1,13 @@
 const express = require("express");
 const session = require("express-session");
 const articlesRouter = require("./articles/articleRouter");
-const commentRouter = require("./comments/commentRouter"); // 댓글 라우터 추가
+const commentRouter = require("./comments/commentRouter");
 const db = require("./utils/dbConnect");
 const registerRoutes = require("./users/register");
 const loginRoutes = require("./users/login");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const notFoundmiddleware = require("./middleware/notFoundmiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -26,7 +27,7 @@ app.use(
   })
 );
 
-const SECRET_KEY = process.env.JWT_SECRET || "my-secret-key";
+const SECRET_KEY = process.env.JWT_SECRET;
 
 app.get("/protected", (req, res) => {
   try {
@@ -52,6 +53,8 @@ app.use("/articles", articlesRouter);
 app.use("/articles", commentRouter);
 app.use("/register", registerRoutes);
 app.use("/login", loginRoutes);
+
+app.use(notFoundMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
