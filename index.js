@@ -5,6 +5,7 @@ const db = require("./utils/dbConnect");
 const registerRoutes = require("./users/register");
 const loginRoutes = require("./users/login");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -24,20 +25,30 @@ app.use(
   })
 );
 
+const SECRET_KEY = process.env.JWT_SECRET || "my-secret-key";
+
 app.get("/protected", (req, res) => {
-  const sessionCookie = req.cookies["connect.sid"];
-  console.log("요청받은 쿠키:", sessionCookie);
-  console.log("세션 정보:", req.session);
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (!req.session?.user && !sessionCookie) {
-    return res.status(401).send({ message: "로그인이 필요합니다." });
+    // Authorization 헤더 확인
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw customError("인증 토큰이 필요합니다.", 401);
+    }
+    const token = authHeader.split(" ")[1];
+    console.log("요청받은 토큰:", token);
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    console.log("디코딩된 사용자 정보:", decoded);
+
+    res.status(200).send({
+      message: `안녕하세요, ${decoded.username}님!`,
+    });
+  } catch (err) {
+    console.error("토큰 검증 실패:", err.message);
+    res.status(403).send({ message: "유효하지 않은 토큰입니다." });
   }
-
-  res.status(200).send({
-    message: "안녕하세요",
-  });
 });
-
 app.use("/articles", articlesRouter);
 app.use("/register", registerRoutes);
 app.use("/login", loginRoutes);

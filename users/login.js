@@ -9,15 +9,11 @@ const router = express.Router();
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION = "1h"; // 엑세스 토큰 만료 시간 (1시간)
 
-router.post(
-  "/",
-  asyncWrapper(async (req, res) => {
+router.post("/", async (req, res, next) => {
+  try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      throw customError("아이디와 비밀번호를 모두 입력해야 합니다.", 400);
-    }
-
+    // 사용자 확인
     const [users] = await db.query("SELECT * FROM users WHERE username = ?", [
       username,
     ]);
@@ -26,27 +22,24 @@ router.post(
     }
 
     const user = users[0];
-
     if (user.password !== password) {
       throw customError("비밀번호가 올바르지 않습니다.", 401);
     }
 
+    // JWT 토큰 생성
     const accessToken = jwt.sign(
-      { id: user.idx, username: user.username },
-      SECRET_KEY,
-      { expiresIn: TOKEN_EXPIRATION }
+      { id: user.idx, username: user.username }, // 페이로드
+      SECRET_KEY, // 비밀키
+      { expiresIn: TOKEN_EXPIRATION } // 만료 시간
     );
-
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-    };
 
     res.status(200).send({
       message: "로그인 성공",
       accessToken,
     });
-  })
-);
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;

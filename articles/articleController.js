@@ -58,9 +58,9 @@ const updateArticle = asyncWrapper(async (req, res) => {
 });
 
 const deleteArticle = asyncWrapper(async (req, res) => {
-  const { id } = req.params;
+  const { articleId } = req.params;
 
-  await articleService.deleteArticle(id);
+  await articleService.deleteArticle(articleId);
 
   res.status(200).send({ message: "게시글이 삭제되었습니다." });
 });

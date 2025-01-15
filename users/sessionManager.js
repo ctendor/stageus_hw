@@ -36,21 +36,20 @@ const checkOwnership = (resourceTable, resourceIdField) => {
   return async (req, res, next) => {
     try {
       const resourceId = req.params[resourceIdField];
+
       if (!resourceId) {
         throw customError("자원 ID가 제공되지 않았습니다.", 400);
       }
 
       const resource = await findResourceById(resourceTable, resourceId);
+
       if (!resource) {
         throw customError("자원을 찾을 수 없습니다.", 404);
       }
 
-      const { user } = req.session;
-      if (!user) {
-        throw customError("로그인이 필요합니다.", 401);
-      }
+      const { id: userId } = req.user;
 
-      if (resource.authorIdx !== user.id) {
+      if (resource.authorIdx !== userId) {
         throw customError("권한이 없습니다.", 403);
       }
 
@@ -61,7 +60,6 @@ const checkOwnership = (resourceTable, resourceIdField) => {
   };
 };
 
-module.exports = checkOwnership;
 module.exports = {
   sessionMiddleware,
   createSession,

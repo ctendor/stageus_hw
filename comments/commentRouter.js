@@ -1,13 +1,12 @@
 const express = require("express");
 const commentController = require("./commentController");
-const { checkSession } = require("../users/sessionManager");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 router.get(
   "/:articleIdx/comments",
-  checkSession,
+  authMiddleware,
   commentController.getCommentsByArticle
 );
 
@@ -16,11 +15,13 @@ router.post(
   authMiddleware,
   commentController.createComment
 );
+
 router.put(
   "/:articleIdx/comments/:commentIdx",
   authMiddleware,
   commentController.updateCommentController
 );
+
 router.delete(
   "/:articleIdx/comments/:commentIdx",
   authMiddleware,
@@ -32,6 +33,7 @@ router.post(
   authMiddleware,
   commentController.likeCommentController
 );
+
 router.delete(
   "/:articleIdx/comments/:commentIdx/like",
   authMiddleware,

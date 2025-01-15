@@ -1,10 +1,10 @@
 const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 
-const addComment = async ({ articleIdx, content }) => {
+const addComment = async ({ articleIdx, content, authorIdx }) => {
   const [result] = await db.query(
-    "INSERT INTO comments (articleIdx, content, createdAt, updatedAt, likes) VALUES (?, ?, NOW(), NOW(), 0)",
-    [articleIdx, content]
+    "INSERT INTO comments (articleIdx, content, authorIdx, createdAt, updatedAt, likes) VALUES (?, ?, ?, NOW(), NOW(), 0)",
+    [articleIdx, content, authorIdx]
   );
 
   if (!result.insertId) {
@@ -19,10 +19,6 @@ const getCommentsByArticle = async (articleIdx) => {
     "SELECT * FROM comments WHERE articleIdx = ? ORDER BY createdAt DESC",
     [articleIdx]
   );
-
-  if (comments.length === 0) {
-    throw customError("댓글이 존재하지 않습니다.", 404);
-  }
 
   return comments;
 };
