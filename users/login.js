@@ -7,13 +7,12 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const SECRET_KEY = process.env.JWT_SECRET;
-const TOKEN_EXPIRATION = "1h"; // 엑세스 토큰 만료 시간 (1시간)
+const TOKEN_EXPIRATION = "1h"; 
 
 router.post("/", async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
-    // 사용자 확인
     const [users] = await db.query("SELECT * FROM users WHERE username = ?", [
       username,
     ]);
@@ -26,11 +25,10 @@ router.post("/", async (req, res, next) => {
       throw customError("비밀번호가 올바르지 않습니다.", 401);
     }
 
-    // JWT 토큰 생성
     const accessToken = jwt.sign(
-      { id: user.idx, username: user.username }, // 페이로드
-      SECRET_KEY, // 비밀키
-      { expiresIn: TOKEN_EXPIRATION } // 만료 시간
+      { id: user.idx, username: user.username }, 
+      SECRET_KEY, 
+      { expiresIn: TOKEN_EXPIRATION } 
     );
 
     res.status(200).send({

@@ -1,6 +1,6 @@
 const session = require("express-session");
 const customError = require("../utils/customError");
-const { findResourceById } = require("../utils/findResource"); // 경로 확인
+const { findResourceById } = require("../utils/findResource");
 
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || 1234,

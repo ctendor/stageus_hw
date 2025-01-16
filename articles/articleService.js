@@ -8,7 +8,7 @@ const createArticle = async ({ title, content, category, authorIdx }) => {
   );
 
   if (!result.insertId) {
-    throw customError("게시글 생성에 실패했습니다.", 500);
+    throw customError("게시글 생성에 실패했습니다.", 500); //SQL 문에서 알아서 거럴짐 알아서 500 에러가 나옴.
   }
 
   return result.insertId;
@@ -71,7 +71,7 @@ const getLikes = async (articleId) => {
   ]);
 
   if (article.length === 0) {
-    throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404);
+    throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404); //Service에는 로직 관련 코드 다 빼보기... middleware로 다 바꿔보기
   }
 
   return article[0].likes;
