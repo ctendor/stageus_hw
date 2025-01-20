@@ -1,14 +1,28 @@
 const customError = require("../utils/customError");
 
-const validationMiddleware = (validationRules) => {
+const validateRequest = (rules) => {
   return (req, res, next) => {
     try {
-      validationRules.forEach((rule) => {
-        const { field, validator, message } = rule;
-        if (!validator(req[field])) {
-          throw customError(message, 400);
+      const { body } = req;
+
+      if (rules.body) {
+        for (const [field, rule] of Object.entries(rules.body)) {
+          const value = body[field];
+
+          if (rule.required && (value === undefined || value === null)) {
+            throw customError(`${field} 값이 누락되었습니다.`, 400);
+          }
+
+          if (
+            value !== undefined &&
+            rule.regex &&
+            !rule.regex.test(String(value))
+          ) {
+            throw customError(`${field} 값이 유효하지 않습니다.`, 400);
+          }
         }
-      });
+      }
+
       next();
     } catch (err) {
       next(err);
@@ -16,4 +30,4 @@ const validationMiddleware = (validationRules) => {
   };
 };
 
-module.exports = validationMiddleware;
+module.exports = { validateRequest };
