@@ -3,35 +3,52 @@ const customError = require("../utils/customError");
 const { findResourceById } = require("../utils/findResource");
 
 const sessionMiddleware = session({
-  secret: process.env.SESSION_SECRET || 1234,
+  secret: process.env.SESSION_SECRET || "1234",
   resave: false,
   saveUninitialized: false,
 });
 
-const createSession = (req, user) => {
-  if (!user || !user.id) {
-    throw customError("유효한 사용자 정보가 아닙니다.", 400);
+// 사용자 세션 생성 미들웨어
+const createSessionMiddleware = (req, res, next) => {
+  try {
+    const { user } = req.body;
+
+    if (!user || !user.id) {
+      throw customError("유효한 사용자 정보가 아닙니다.", 400);
+    }
+
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+    };
+
+    next();
+  } catch (err) {
+    next(err);
   }
-
-  req.session.user = {
-    id: user.id,
-    name: user.name,
-    role: user.role,
-  };
 };
 
-const destroySession = (req) => {
-  return new Promise((resolve, reject) => {
-    req.session.destroy((err) => {
-      if (err) {
-        reject(customError("세션 삭제에 실패했습니다.", 500));
-      } else {
-        resolve();
-      }
+// 사용자 세션 삭제 미들웨어
+const destroySessionMiddleware = async (req, res, next) => {
+  try {
+    await new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) {
+          reject(customError("세션 삭제에 실패했습니다.", 500));
+        } else {
+          resolve();
+        }
+      });
     });
-  });
+
+    res.status(200).send({ message: "세션이 삭제되었습니다." });
+  } catch (err) {
+    next(err);
+  }
 };
 
+// 작성자 확인 미들웨어
 const checkOwnership = (resourceTable, resourceIdField) => {
   return async (req, res, next) => {
     try {
@@ -62,7 +79,7 @@ const checkOwnership = (resourceTable, resourceIdField) => {
 
 module.exports = {
   sessionMiddleware,
-  createSession,
-  destroySession,
+  createSessionMiddleware,
+  destroySessionMiddleware,
   checkOwnership,
 };

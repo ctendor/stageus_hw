@@ -70,6 +70,7 @@ const getLikes = async (articleId) => {
     articleId,
   ]);
 
+  const [like] = await db.query("UPDATE article_likes ")
   if (article.length === 0) {
     throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404); //Service에는 로직 관련 코드 다 빼보기... middleware로 다 바꿔보기
   }
