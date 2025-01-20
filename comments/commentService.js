@@ -2,6 +2,10 @@ const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 
 const addComment = async ({ articleIdx, content, authorIdx }) => {
+  if (!articleIdx || !content || !authorIdx) {
+    throw customError("필수 입력값이 누락되었습니다.", 400);
+  }
+
   const [result] = await db.query(
     "INSERT INTO comments (articleIdx, content, authorIdx, createdAt, updatedAt, likes) VALUES (?, ?, ?, NOW(), NOW(), 0)",
     [articleIdx, content, authorIdx]
@@ -15,6 +19,10 @@ const addComment = async ({ articleIdx, content, authorIdx }) => {
 };
 
 const getCommentsByArticle = async (articleIdx) => {
+  if (!articleIdx) {
+    throw customError("게시글 ID가 누락되었습니다.", 400);
+  }
+
   const [comments] = await db.query(
     "SELECT * FROM comments WHERE articleIdx = ? ORDER BY createdAt DESC",
     [articleIdx]
@@ -24,6 +32,10 @@ const getCommentsByArticle = async (articleIdx) => {
 };
 
 const getCommentById = async (commentIdx) => {
+  if (!commentIdx) {
+    throw customError("댓글 ID가 누락되었습니다.", 400);
+  }
+
   const [comments] = await db.query("SELECT * FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
@@ -36,6 +48,10 @@ const getCommentById = async (commentIdx) => {
 };
 
 const updateComment = async (commentIdx, { content }) => {
+  if (!commentIdx || !content) {
+    throw customError("필수 입력값이 누락되었습니다.", 400);
+  }
+
   const [result] = await db.query(
     "UPDATE comments SET content = ?, updatedAt = NOW() WHERE idx = ?",
     [content, commentIdx]
@@ -47,6 +63,10 @@ const updateComment = async (commentIdx, { content }) => {
 };
 
 const deleteComment = async (commentIdx) => {
+  if (!commentIdx) {
+    throw customError("댓글 ID가 누락되었습니다.", 400);
+  }
+
   const [result] = await db.query("DELETE FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
@@ -56,15 +76,11 @@ const deleteComment = async (commentIdx) => {
   }
 };
 
-const checkCommentExists = async (commentIdx) => {
-  const [comments] = await db.query("SELECT * FROM comments WHERE idx = ?", [
-    commentIdx,
-  ]);
-  return comments.length > 0;
-};
-
 const likeComment = async (commentIdx, userId) => {
-  // 좋아요 상태 확인
+  if (!commentIdx || !userId) {
+    throw customError("필수 입력값이 누락되었습니다.", 400);
+  }
+
   const [existingLike] = await db.query(
     "SELECT * FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
     [commentIdx, userId]
@@ -74,7 +90,6 @@ const likeComment = async (commentIdx, userId) => {
     throw customError("이미 좋아요를 누른 상태입니다.", 409);
   }
 
-  // 좋아요 추가
   const [result] = await db.query(
     "INSERT INTO comment_likes (commentIdx, userIdx, createdAt) VALUES (?, ?, NOW())",
     [commentIdx, userId]
@@ -88,7 +103,10 @@ const likeComment = async (commentIdx, userId) => {
 };
 
 const unlikeComment = async (commentIdx, userId) => {
-  // 좋아요 상태 확인
+  if (!commentIdx || !userId) {
+    throw customError("필수 입력값이 누락되었습니다.", 400);
+  }
+
   const [existingLike] = await db.query(
     "SELECT * FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
     [commentIdx, userId]
@@ -98,7 +116,6 @@ const unlikeComment = async (commentIdx, userId) => {
     throw customError("좋아요를 누르지 않은 상태입니다.", 409);
   }
 
-  // 좋아요 삭제
   const [result] = await db.query(
     "DELETE FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
     [commentIdx, userId]
@@ -112,6 +129,10 @@ const unlikeComment = async (commentIdx, userId) => {
 };
 
 const getLikes = async (commentIdx) => {
+  if (!commentIdx) {
+    throw customError("댓글 ID가 누락되었습니다.", 400);
+  }
+
   const [likes] = await db.query(
     "SELECT COUNT(*) as likeCount FROM comment_likes WHERE commentIdx = ?",
     [commentIdx]
