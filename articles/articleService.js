@@ -12,16 +12,16 @@ const validateInputs = (inputs) => {
 const createArticle = async ({ title, content, category, authorIdx }) => {
   validateInputs({ title, content, category, authorIdx });
 
-  const [result] = await db.query(
-    "INSERT INTO articles (title, content, category, authorIdx, likes, createdAt, updatedAt) VALUES (?, ?, ?, ?, 0, NOW(), NOW())",
+  const result = await db.query(
+    "INSERT INTO articles (title, content, category, authorIdx, likes, createdAt, updatedAt) VALUES ($1, $2, $3, $4, 0, NOW(), NOW()) RETURNING idx",
     [title, content, category, authorIdx]
   );
 
-  if (!result.insertId) {
+  if (!result.rows[0]?.idx) {
     throw customError("게시글 생성에 실패했습니다.", 500);
   }
 
-  return result.insertId;
+  return result.rows[0].idx;
 };
 
 const getArticles = async ({ search, category }) => {
@@ -29,42 +29,44 @@ const getArticles = async ({ search, category }) => {
   const params = [];
 
   if (search) {
-    query += " AND (title LIKE ? OR content LIKE ?)";
+    query += " AND (title ILIKE $1 OR content ILIKE $2)";
     params.push(`%${search}%`, `%${search}%`);
   }
 
   if (category) {
-    query += " AND category = ?";
+    query += params.length > 0 ? " AND category = $3" : " AND category = $1";
     params.push(category);
   }
 
-  const [articles] = await db.query(query, params);
-  return articles;
+  query += " ORDER BY createdAt DESC";
+
+  const result = await db.query(query, params);
+  return result.rows;
 };
 
 const getArticleById = async (articleId) => {
   validateInputs({ articleId });
 
-  const [articles] = await db.query("SELECT * FROM articles WHERE idx = ?", [
+  const result = await db.query("SELECT * FROM articles WHERE idx = $1", [
     articleId,
   ]);
 
-  if (articles.length === 0) {
+  if (result.rows.length === 0) {
     throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404);
   }
 
-  return articles[0];
+  return result.rows[0];
 };
 
 const updateArticle = async (articleId, { title, content, category }) => {
   validateInputs({ articleId });
 
-  const [result] = await db.query(
-    "UPDATE articles SET title = ?, content = ?, category = ?, updatedAt = NOW() WHERE idx = ?",
+  const result = await db.query(
+    "UPDATE articles SET title = $1, content = $2, category = $3, updatedAt = NOW() WHERE idx = $4 RETURNING idx",
     [title, content, category, articleId]
   );
 
-  if (result.affectedRows === 0) {
+  if (result.rows.length === 0) {
     throw customError("게시글 수정에 실패했습니다.", 404);
   }
 };
@@ -72,11 +74,12 @@ const updateArticle = async (articleId, { title, content, category }) => {
 const deleteArticle = async (articleId) => {
   validateInputs({ articleId });
 
-  const [result] = await db.query("DELETE FROM articles WHERE idx = ?", [
-    articleId,
-  ]);
+  const result = await db.query(
+    "DELETE FROM articles WHERE idx = $1 RETURNING idx",
+    [articleId]
+  );
 
-  if (result.affectedRows === 0) {
+  if (result.rows.length === 0) {
     throw customError("게시글 삭제에 실패했습니다.", 404);
   }
 };
@@ -84,21 +87,21 @@ const deleteArticle = async (articleId) => {
 const likeArticle = async (articleId, userId) => {
   validateInputs({ articleId, userId });
 
-  const [existingLike] = await db.query(
-    "SELECT * FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+  const existingLike = await db.query(
+    "SELECT * FROM article_likes WHERE articleIdx = $1 AND userIdx = $2",
     [articleId, userId]
   );
 
-  if (existingLike.length > 0) {
+  if (existingLike.rows.length > 0) {
     throw customError("이미 좋아요를 누른 상태입니다.", 409);
   }
 
-  const [result] = await db.query(
-    "INSERT INTO article_likes (articleIdx, userIdx, createdAt) VALUES (?, ?, NOW())",
+  const result = await db.query(
+    "INSERT INTO article_likes (articleIdx, userIdx, createdAt) VALUES ($1, $2, NOW()) RETURNING idx",
     [articleId, userId]
   );
 
-  if (result.affectedRows === 0) {
+  if (!result.rows[0]?.idx) {
     throw customError("좋아요 처리에 실패했습니다.", 500);
   }
 
@@ -108,21 +111,21 @@ const likeArticle = async (articleId, userId) => {
 const unlikeArticle = async (articleId, userId) => {
   validateInputs({ articleId, userId });
 
-  const [existingLike] = await db.query(
-    "SELECT * FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+  const existingLike = await db.query(
+    "SELECT * FROM article_likes WHERE articleIdx = $1 AND userIdx = $2",
     [articleId, userId]
   );
 
-  if (existingLike.length === 0) {
+  if (existingLike.rows.length === 0) {
     throw customError("좋아요를 누른 적이 없습니다.", 409);
   }
 
-  const [result] = await db.query(
-    "DELETE FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+  const result = await db.query(
+    "DELETE FROM article_likes WHERE articleIdx = $1 AND userIdx = $2 RETURNING idx",
     [articleId, userId]
   );
 
-  if (result.affectedRows === 0) {
+  if (result.rows.length === 0) {
     throw customError("좋아요 취소 처리에 실패했습니다.", 500);
   }
 
@@ -132,16 +135,16 @@ const unlikeArticle = async (articleId, userId) => {
 const getLikes = async (articleId) => {
   validateInputs({ articleId });
 
-  const [likes] = await db.query(
-    "SELECT COUNT(*) as likeCount FROM article_likes WHERE articleIdx = ?",
+  const result = await db.query(
+    "SELECT COUNT(*) as likeCount FROM article_likes WHERE articleIdx = $1",
     [articleId]
   );
 
-  if (likes.length === 0) {
+  if (result.rows.length === 0) {
     throw customError("좋아요 정보를 가져오는 데 실패했습니다.", 404);
   }
 
-  return likes[0].likeCount;
+  return result.rows[0].likeCount;
 };
 
 module.exports = {
