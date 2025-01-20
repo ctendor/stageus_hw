@@ -41,6 +41,11 @@ const getArticle = asyncWrapper(async (req, res) => {
   res.status(200).send(article);
 });
 
+const getArticles = asyncWrapper(async (req, res) => {
+  const articles = await articleService.getArticles();
+  res.status(200).send(articles);
+});
+
 const updateArticle = [
   validateRequest({
     body: {
@@ -99,6 +104,7 @@ const unlikeArticle = asyncWrapper(async (req, res) => {
 
 module.exports = {
   createArticle,
+  getArticles,
   getArticle,
   updateArticle,
   deleteArticle,

@@ -1,7 +1,7 @@
 const express = require("express");
 const articleController = require("./articleController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { checkOwnership } = require("../middlewares/checkOwnership");
+const { checkOwnership } = require("../middlewares/sessionManager");
 
 const router = express.Router();
 

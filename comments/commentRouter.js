@@ -1,7 +1,7 @@
 const express = require("express");
 const commentController = require("./commentController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { checkOwnership } = require("../middlewares/checkOwnership");
+const { checkOwnership } = require("../middlewares/sessionManager");
 const { validateRequest } = require("../middlewares/validationMiddleware");
 const { idxRegx } = require("../constants/regx");
 

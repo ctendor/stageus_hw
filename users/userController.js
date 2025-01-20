@@ -1,42 +1,57 @@
 const userService = require("./userService");
 const asyncWrapper = require("../utils/asyncWrapper");
 const customError = require("../utils/customError");
+const { validateRequest } = require("../middlewares/validationMiddleware");
+const { usernameRegx, passwordRegx } = require("../constants/regx");
 
-const register = asyncWrapper(async (req, res) => {
-  const { username, password, name } = req.body;
+const register = [
+  validateRequest({
+    body: {
+      username: { regex: usernameRegx, required: true },
+      password: { regex: passwordRegx, required: true },
+      name: { regex: /^.{1,50}$/, required: true },
+    },
+  }),
+  asyncWrapper(async (req, res) => {
+    const { username, password, name } = req.body;
 
-  if (!username || !password || !name) {
-    throw customError("모든 필드를 입력해주세요.", 400);
-  }
+    const newUser = await userService.registerUser({
+      username,
+      password,
+      name,
+    });
 
-  const newUser = await userService.registerUser({ username, password, name });
+    res.status(201).send({
+      message: "회원가입이 완료되었습니다.",
+      user: newUser,
+    });
+  }),
+];
 
-  res.status(201).send({
-    message: "회원가입이 완료되었습니다.",
-    user: newUser,
-  });
-});
+const login = [
+  validateRequest({
+    body: {
+      username: { regex: usernameRegx, required: true },
+      password: { regex: passwordRegx, required: true },
+    },
+  }),
+  asyncWrapper(async (req, res) => {
+    const { username, password } = req.body;
 
-const login = asyncWrapper(async (req, res) => {
-  const { username, password } = req.body;
+    const user = await userService.authenticateUser({ username, password });
 
-  if (!username || !password) {
-    throw customError("아이디와 비밀번호를 입력해주세요.", 400);
-  }
+    req.session.user = {
+      id: user.idx,
+      username: user.username,
+      name: user.name,
+    };
 
-  const user = await userService.authenticateUser({ username, password });
-
-  req.session.user = {
-    id: user.idx,
-    username: user.username,
-    name: user.name,
-  };
-
-  res.status(200).send({
-    message: "로그인 성공",
-    user: req.session.user,
-  });
-});
+    res.status(200).send({
+      message: "로그인 성공",
+      user: req.session.user,
+    });
+  }),
+];
 
 const logout = asyncWrapper(async (req, res) => {
   req.session.destroy((err) => {
@@ -57,9 +72,27 @@ const getUserInfo = asyncWrapper(async (req, res) => {
   res.status(200).send(user);
 });
 
+const getMyArticles = asyncWrapper(async (req, res) => {
+  const { id: userId } = req.session.user;
+
+  const articles = await userService.getArticlesByUser(userId);
+
+  res.status(200).send(articles);
+});
+
+const getMyComments = asyncWrapper(async (req, res) => {
+  const { id: userId } = req.session.user;
+
+  const comments = await userService.getCommentsByUser(userId);
+
+  res.status(200).send(comments);
+});
+
 module.exports = {
   register,
   login,
   logout,
   getUserInfo,
+  getMyArticles,
+  getMyComments,
 };

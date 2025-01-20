@@ -34,19 +34,6 @@ const authenticateUser = async ({ username, password }) => {
   return users[0];
 };
 
-const getUserById = async (userId) => {
-  const [users] = await db.query(
-    "SELECT idx, username, name FROM users WHERE idx = ?",
-    [userId]
-  );
-
-  if (users.length === 0) {
-    throw customError("사용자를 찾을 수 없습니다.", 404);
-  }
-
-  return users[0];
-};
-
 const getArticlesByUser = async (userId) => {
   const [articles] = await db.query(
     "SELECT * FROM articles WHERE authorIdx = ? ORDER BY createdAt DESC",
@@ -68,7 +55,6 @@ const getCommentsByUser = async (userId) => {
 module.exports = {
   registerUser,
   authenticateUser,
-  getUserById,
   getArticlesByUser,
   getCommentsByUser,
 };
