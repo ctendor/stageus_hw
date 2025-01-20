@@ -5,7 +5,7 @@ const { titleRegx, categoryRegx } = require("../constants/regx");
 
 const createArticle = asyncWrapper(async (req, res) => {
   const { title, content, category } = req.body;
-  const { id: authorIdx } = req.user;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
 
   if (!title || !content || !category) {
     throw customError("제목, 내용, 카테고리를 모두 입력해주세요.", 400);
@@ -44,6 +44,14 @@ const getArticle = asyncWrapper(async (req, res) => {
 const updateArticle = asyncWrapper(async (req, res) => {
   const { articleId } = req.params;
   const { title, content, category } = req.body;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
+
+  const article = await articleService.getArticleById(articleId);
+
+  // 작성자 권한 확인
+  if (article.authorIdx !== authorIdx) {
+    throw customError("게시글 수정 권한이 없습니다.", 403);
+  }
 
   if (title && !titleRegx.test(title)) {
     throw customError("제목은 1~20자이어야 합니다.", 400);
@@ -59,6 +67,14 @@ const updateArticle = asyncWrapper(async (req, res) => {
 
 const deleteArticle = asyncWrapper(async (req, res) => {
   const { articleId } = req.params;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
+
+  const article = await articleService.getArticleById(articleId);
+
+  // 작성자 권한 확인
+  if (article.authorIdx !== authorIdx) {
+    throw customError("게시글 삭제 권한이 없습니다.", 403);
+  }
 
   await articleService.deleteArticle(articleId);
 

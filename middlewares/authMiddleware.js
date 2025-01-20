@@ -1,27 +1,22 @@
-const jwt = require("jsonwebtoken");
 const customError = require("../utils/customError");
-
-const SECRET_KEY = process.env.JWT_SECRET;
 
 const authMiddleware = (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw customError("인증 토큰이 필요합니다.", 401);
+    // 세션 확인
+    if (!req.session || !req.session.user) {
+      throw customError("로그인이 필요합니다.", 401); // 401 Unauthorized
     }
 
-    const token = authHeader.split(" ")[1];
-    console.log("요청된 토큰:", token);
+    // 세션에서 사용자 정보 가져오기
+    console.log("세션 사용자 정보:", req.session.user);
 
-    const decoded = jwt.verify(token, SECRET_KEY);
-    console.log("디코딩된 사용자 정보:", decoded);
+    // 사용자 정보를 요청 객체에 저장
+    req.user = req.session.user;
 
-    req.user = decoded;
-    next();
+    next(); // 다음 미들웨어로 이동
   } catch (err) {
-    console.error("토큰 검증 실패:", err.message);
-    next(customError("유효하지 않은 토큰입니다.", 403));
+    console.error("세션 인증 실패:", err.message);
+    next(customError("유효하지 않은 세션입니다.", 403)); // 403 Forbidden
   }
 };
 

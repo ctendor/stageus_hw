@@ -1,9 +1,6 @@
 const userService = require("./userService");
 const asyncWrapper = require("../utils/asyncWrapper");
 const customError = require("../utils/customError");
-const jwt = require("jsonwebtoken");
-
-const SECRET_KEY = process.env.JWT_SECRET || "my-secret-key";
 
 const register = asyncWrapper(async (req, res) => {
   const { username, password, name } = req.body;
@@ -29,50 +26,40 @@ const login = asyncWrapper(async (req, res) => {
 
   const user = await userService.authenticateUser({ username, password });
 
-  const token = jwt.sign(
-    { id: user.idx, username: user.username, name: user.name },
-    SECRET_KEY,
-    { expiresIn: "1h" }
-  );
+  req.session.user = {
+    id: user.idx,
+    username: user.username,
+    name: user.name,
+  };
 
   res.status(200).send({
     message: "로그인 성공",
-    accessToken: token,
+    user: req.session.user,
+  });
+});
+
+const logout = asyncWrapper(async (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      throw customError("로그아웃 처리 중 오류가 발생했습니다.", 500);
+    }
+    res.status(200).send({ message: "로그아웃 되었습니다." });
   });
 });
 
 const getUserInfo = asyncWrapper(async (req, res) => {
-  const { id: userId } = req.user;
-
-  const user = await userService.getUserById(userId);
+  const user = req.session.user;
 
   if (!user) {
-    throw customError("사용자 정보를 찾을 수 없습니다.", 404);
+    throw customError("로그인이 필요합니다.", 401);
   }
 
   res.status(200).send(user);
 });
 
-const getMyArticles = asyncWrapper(async (req, res) => {
-  const { id: userId } = req.user;
-
-  const articles = await userService.getArticlesByUser(userId);
-
-  res.status(200).send(articles);
-});
-
-const getMyComments = asyncWrapper(async (req, res) => {
-  const { id: userId } = req.user;
-
-  const comments = await userService.getCommentsByUser(userId);
-
-  res.status(200).send(comments);
-});
-
 module.exports = {
   register,
   login,
+  logout,
   getUserInfo,
-  getMyArticles,
-  getMyComments,
 };

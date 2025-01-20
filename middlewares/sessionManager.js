@@ -8,7 +8,6 @@ const sessionMiddleware = session({
   saveUninitialized: false,
 });
 
-// 사용자 세션 생성 미들웨어
 const createSessionMiddleware = (req, res, next) => {
   try {
     const { user } = req.body;
@@ -29,7 +28,6 @@ const createSessionMiddleware = (req, res, next) => {
   }
 };
 
-// 사용자 세션 삭제 미들웨어
 const destroySessionMiddleware = async (req, res, next) => {
   try {
     await new Promise((resolve, reject) => {
@@ -48,7 +46,6 @@ const destroySessionMiddleware = async (req, res, next) => {
   }
 };
 
-// 작성자 확인 미들웨어
 const checkOwnership = (resourceTable, resourceIdField) => {
   return async (req, res, next) => {
     try {
