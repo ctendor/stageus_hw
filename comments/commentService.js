@@ -56,36 +56,72 @@ const deleteComment = async (commentIdx) => {
   }
 };
 
-const likeComment = async (commentIdx) => {
-  const [result] = await db.query(
-    "UPDATE comments SET likes = likes + 1 WHERE idx = ?",
-    [commentIdx]
-  );
-
-  if (result.affectedRows === 0) {
-    throw customError("댓글 좋아요 처리에 실패했습니다.", 404);
-  }
-
-  const [comment] = await db.query("SELECT likes FROM comments WHERE idx = ?", [
+const checkCommentExists = async (commentIdx) => {
+  const [comments] = await db.query("SELECT * FROM comments WHERE idx = ?", [
     commentIdx,
   ]);
-  return comment[0].likes;
+  return comments.length > 0;
 };
 
-const unlikeComment = async (commentIdx) => {
+const likeComment = async (commentIdx, userId) => {
+  // 좋아요 상태 확인
+  const [existingLike] = await db.query(
+    "SELECT * FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
+    [commentIdx, userId]
+  );
+
+  if (existingLike.length > 0) {
+    throw customError("이미 좋아요를 누른 상태입니다.", 409);
+  }
+
+  // 좋아요 추가
   const [result] = await db.query(
-    "UPDATE comments SET likes = likes - 1 WHERE idx = ? AND likes > 0",
-    [commentIdx]
+    "INSERT INTO comment_likes (commentIdx, userIdx, createdAt) VALUES (?, ?, NOW())",
+    [commentIdx, userId]
   );
 
   if (result.affectedRows === 0) {
-    throw customError("댓글 좋아요 취소 처리에 실패했습니다.", 404);
+    throw customError("댓글 좋아요 처리에 실패했습니다.", 500);
   }
 
-  const [comment] = await db.query("SELECT likes FROM comments WHERE idx = ?", [
-    commentIdx,
-  ]);
-  return comment[0].likes;
+  return await getLikes(commentIdx);
+};
+
+const unlikeComment = async (commentIdx, userId) => {
+  // 좋아요 상태 확인
+  const [existingLike] = await db.query(
+    "SELECT * FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
+    [commentIdx, userId]
+  );
+
+  if (existingLike.length === 0) {
+    throw customError("좋아요를 누르지 않은 상태입니다.", 409);
+  }
+
+  // 좋아요 삭제
+  const [result] = await db.query(
+    "DELETE FROM comment_likes WHERE commentIdx = ? AND userIdx = ?",
+    [commentIdx, userId]
+  );
+
+  if (result.affectedRows === 0) {
+    throw customError("댓글 좋아요 취소 처리에 실패했습니다.", 500);
+  }
+
+  return await getLikes(commentIdx);
+};
+
+const getLikes = async (commentIdx) => {
+  const [likes] = await db.query(
+    "SELECT COUNT(*) as likeCount FROM comment_likes WHERE commentIdx = ?",
+    [commentIdx]
+  );
+
+  if (likes.length === 0) {
+    throw customError("좋아요 정보를 가져오는 데 실패했습니다.", 404);
+  }
+
+  return likes[0].likeCount;
 };
 
 module.exports = {

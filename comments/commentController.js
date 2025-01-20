@@ -5,7 +5,7 @@ const asyncWrapper = require("../utils/asyncWrapper");
 const createComment = asyncWrapper(async (req, res) => {
   const { articleIdx } = req.params;
   const { content } = req.body;
-  const { id: authorIdx } = req.user;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
 
   if (!content || typeof content !== "string") {
     throw customError("댓글 내용을 입력해주세요.", 400);
@@ -34,7 +34,7 @@ const getCommentsByArticle = asyncWrapper(async (req, res) => {
 const updateCommentController = asyncWrapper(async (req, res) => {
   const { articleIdx, commentIdx } = req.params;
   const { content } = req.body;
-  const { id: authorIdx } = req.user;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
 
   if (!content || typeof content !== "string") {
     throw customError("댓글 내용을 입력해주세요.", 400);
@@ -42,7 +42,7 @@ const updateCommentController = asyncWrapper(async (req, res) => {
 
   const comment = await commentService.getCommentById(commentIdx);
   if (
-    comment.articleIdx !== parseInt(articleIdx) ||
+    comment.articleIdx !== parseInt(articleIdx, 10) ||
     comment.authorIdx !== authorIdx
   ) {
     throw customError("댓글을 수정할 권한이 없습니다.", 403);
@@ -55,11 +55,11 @@ const updateCommentController = asyncWrapper(async (req, res) => {
 
 const deleteCommentController = asyncWrapper(async (req, res) => {
   const { articleIdx, commentIdx } = req.params;
-  const { id: authorIdx } = req.user;
+  const { id: authorIdx } = req.user; // 세션에서 사용자 정보 가져옴
 
   const comment = await commentService.getCommentById(commentIdx);
   if (
-    comment.articleIdx !== parseInt(articleIdx) ||
+    comment.articleIdx !== parseInt(articleIdx, 10) ||
     comment.authorIdx !== authorIdx
   ) {
     throw customError("댓글을 삭제할 권한이 없습니다.", 403);
