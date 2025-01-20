@@ -8,7 +8,7 @@ const createArticle = async ({ title, content, category, authorIdx }) => {
   );
 
   if (!result.insertId) {
-    throw customError("게시글 생성에 실패했습니다.", 500); //SQL 문에서 알아서 거럴짐 알아서 500 에러가 나옴.
+    throw customError("게시글 생성에 실패했습니다.", 500);
   }
 
   return result.insertId;
@@ -65,43 +65,72 @@ const deleteArticle = async (articleId) => {
   }
 };
 
-const getLikes = async (articleId) => {
-  const [article] = await db.query("SELECT likes FROM articles WHERE idx = ?", [
+const checkArticleExists = async (articleId) => {
+  const [articles] = await db.query("SELECT idx FROM articles WHERE idx = ?", [
     articleId,
   ]);
-
-  const [like] = await db.query("UPDATE article_likes ")
-  if (article.length === 0) {
-    throw customError("해당 ID의 게시글을 찾을 수 없습니다.", 404); //Service에는 로직 관련 코드 다 빼보기... middleware로 다 바꿔보기
-  }
-
-  return article[0].likes;
+  return articles.length > 0;
 };
 
-const likeArticle = async (articleId) => {
+const likeArticle = async (articleId, userId) => {
+  // 이미 좋아요를 눌렀는지 확인
+  const [existingLike] = await db.query(
+    "SELECT * FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+    [articleId, userId]
+  );
+
+  if (existingLike.length > 0) {
+    throw customError("이미 좋아요를 누른 상태입니다.", 409);
+  }
+
+  // 좋아요 추가
   const [result] = await db.query(
-    "UPDATE articles SET likes = likes + 1 WHERE idx = ?",
-    [articleId]
+    "INSERT INTO article_likes (articleIdx, userIdx, createdAt) VALUES (?, ?, NOW())",
+    [articleId, userId]
   );
 
   if (result.affectedRows === 0) {
-    throw customError("좋아요 처리에 실패했습니다.", 404);
+    throw customError("좋아요 처리에 실패했습니다.", 500);
   }
 
   return await getLikes(articleId);
 };
 
-const unlikeArticle = async (articleId) => {
+const unlikeArticle = async (articleId, userId) => {
+  // 좋아요 여부 확인
+  const [existingLike] = await db.query(
+    "SELECT * FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+    [articleId, userId]
+  );
+
+  if (existingLike.length === 0) {
+    throw customError("좋아요를 누른 적이 없습니다.", 409);
+  }
+
+  // 좋아요 삭제
   const [result] = await db.query(
-    "UPDATE articles SET likes = likes - 1 WHERE idx = ? AND likes > 0",
-    [articleId]
+    "DELETE FROM article_likes WHERE articleIdx = ? AND userIdx = ?",
+    [articleId, userId]
   );
 
   if (result.affectedRows === 0) {
-    throw customError("좋아요 취소 처리에 실패했습니다.", 404);
+    throw customError("좋아요 취소 처리에 실패했습니다.", 500);
   }
 
   return await getLikes(articleId);
+};
+
+const getLikes = async (articleId) => {
+  const [likes] = await db.query(
+    "SELECT COUNT(*) as likeCount FROM article_likes WHERE articleIdx = ?",
+    [articleId]
+  );
+
+  if (likes.length === 0) {
+    throw customError("좋아요 정보를 가져오는 데 실패했습니다.", 404);
+  }
+
+  return likes[0].likeCount;
 };
 
 module.exports = {
