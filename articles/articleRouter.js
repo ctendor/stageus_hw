@@ -2,7 +2,7 @@ const express = require("express");
 const articleController = require("./articleController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const { checkOwnership } = require("../middlewares/sessionManager");
-const dbMmiddleware = require("../middlewares/dbMiddleware");
+const dbMiddleware = require("../middlewares/dbMiddleware");
 
 const router = express.Router();
 
