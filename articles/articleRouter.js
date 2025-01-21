@@ -2,9 +2,11 @@ const express = require("express");
 const articleController = require("./articleController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const { checkOwnership } = require("../middlewares/sessionManager");
+const dbMmiddleware = require("../middlewares/dbMiddleware");
 
 const router = express.Router();
 
+router.use(dbMiddleware);
 router.get("/", articleController.getArticles);
 router.get("/:id", articleController.getArticle);
 router.post("/", authMiddleware, articleController.createArticle);

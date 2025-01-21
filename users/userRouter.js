@@ -1,8 +1,10 @@
 const express = require("express");
 const userController = require("./userController");
 const authMiddleware = require("../middlewares/authMiddleware");
+const dbMiddleware = require("../middlewares/dbMiddleware");
 
 const router = express.Router();
+router.use(dbMiddleware);
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);

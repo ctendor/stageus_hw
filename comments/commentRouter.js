@@ -4,8 +4,10 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const { checkOwnership } = require("../middlewares/sessionManager");
 const { validateRequest } = require("../middlewares/validationMiddleware");
 const { idxRegx } = require("../constants/regx");
+const dbMmiddleware = require("../middlewares/dbMiddleware");
 
 const router = express.Router();
+router.use(dbMiddleware);
 
 router.get(
   "/:articleIdx/comments",
