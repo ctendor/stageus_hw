@@ -17,6 +17,8 @@ app.use(express.json());
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "1234",
+    resave: false,
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
       maxAge: 1000 * 60 * 60, // 1시간
