@@ -12,4 +12,15 @@ const pool = new Pool({
 
 pool.connect();
 
-module.exports = pool;
+const dbUtils = async (req, res, next) => {
+  const client = await dbUtils.connect();
+  req.dbClient = client;
+  try {
+    await next();
+  } catch (err) {
+    next(err);
+  } finally {
+    client.release();
+  }
+};
+module.exports = { pool, dbUtils };
