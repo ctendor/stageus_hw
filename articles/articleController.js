@@ -10,7 +10,7 @@ const createArticle = [
       title: { regex: titleRegx, required: true },
       content: { regex: contentRegx, required: true },
       category: { regex: categoryRegx, required: true },
-    },
+    }, // 접근권한, 비즈니스 로직 등등 Controller에 다 넣는 사람도 있음. 이게 controller긴 함
   }),
   asyncWrapper(async (req, res) => {
     const { title, content, category } = req.body;

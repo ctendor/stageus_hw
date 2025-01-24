@@ -3,3 +3,5 @@ const notFoundMiddleware = (req, res, next) => {
 };
 
 module.exports = notFoundMiddleware;
+
+//해당 Router가 없을때 값을 주려고 만드는 middleware

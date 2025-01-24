@@ -64,7 +64,7 @@ const updateArticle = async (articleId, { title, content, category }) => {
   const result = await db.query(
     "UPDATE articles SET title = $1, content = $2, category = $3, updatedAt = NOW() WHERE idx = $4 RETURNING idx",
     [title, content, category, articleId]
-  );
+  ); // sql에서 useridx 체크 해야함
 
   if (result.rows.length === 0) {
     throw customError("게시글 수정에 실패했습니다.", 404);
@@ -75,7 +75,7 @@ const deleteArticle = async (articleId) => {
   validateInputs({ articleId });
 
   const result = await db.query(
-    "DELETE FROM articles WHERE idx = $1 RETURNING idx",
+    "DELETE FROM articles WHERE idx = $1 RETURNING idx", // 디버깅을 하려면 다른곳에서 진행. wrapper나 table에서 직접 보는것도...?
     [articleId]
   );
 

@@ -92,7 +92,7 @@ const deleteCommentController = [
       comment.authorIdx !== authorIdx
     ) {
       throw customError("댓글을 삭제할 권한이 없습니다.", 403);
-    }
+    } //중복 코드
 
     await commentService.deleteComment(commentIdx);
 

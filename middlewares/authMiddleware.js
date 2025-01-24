@@ -7,7 +7,6 @@ const authMiddleware = (req, res, next) => {
     }
 
     console.log("세션 사용자 정보:", req.session.user);
-
     req.user = req.session.user;
 
     next();

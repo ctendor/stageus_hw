@@ -3,7 +3,7 @@ const commentController = require("./commentController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const { checkOwnership } = require("../middlewares/sessionManager");
 const { validateRequest } = require("../middlewares/validationMiddleware");
-const { idxRegx } = require("../constants/regx");
+const { idxRegx, commentRegx } = require("../constants/regx");
 const dbMiddleware = require("../middlewares/dbMiddleware");
 
 const router = express.Router();
@@ -27,7 +27,7 @@ router.post(
       articleIdx: { regex: idxRegx, required: true },
     },
     body: {
-      content: { regex: /^.{1,}$/, required: true },
+      content: { regex: commentRegx, required: true },
     },
   }),
   commentController.createComment
@@ -42,7 +42,7 @@ router.put(
       commentIdx: { regex: idxRegx, required: true },
     },
     body: {
-      content: { regex: /^.{1,}$/, required: true },
+      content: { regex: commentRegx, required: true },
     },
   }),
   checkOwnership("comments", "commentIdx"),
