@@ -1,10 +1,10 @@
 const express = require("express");
 const commentController = require("./commentController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { checkOwnership } = require("../middlewares/sessionManager");
+const { checkOwnership } = require("../middlewares/checkOwnership");
 const { validateRequest } = require("../middlewares/validationMiddleware");
 const { idxRegx, commentRegx } = require("../constants/regx");
-const dbMiddleware = require("../middlewares/dbMiddleware");
+const dbMiddleware = require("../utils/dbConnect");
 
 const router = express.Router();
 router.use(dbMiddleware);
