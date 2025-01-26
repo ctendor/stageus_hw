@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const articlesRouter = require("./articles/articleRouter");
 const commentRouter = require("./comments/commentRouter");
 const userRouter = require("./users/userRouter");
+const logRouter = require("./logs/logRouter");
 const customError = require("./utils/customError");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
@@ -29,7 +30,7 @@ app.use(
 app.use("/articles", articlesRouter);
 app.use("/comments", commentRouter);
 app.use("/users", userRouter);
-
+app.use("/log", logRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandler);
 

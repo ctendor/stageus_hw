@@ -1,4 +1,4 @@
-const { saveLog } = require("./utils/logger"); // MongoDB 로그 유틸리티
+const { saveLog } = require("./utils/logger");
 
 const logMiddleware = (req, res, next) => {
   const startTime = Date.now();
@@ -24,7 +24,7 @@ const logMiddleware = (req, res, next) => {
 
     try {
       await saveLog(logData);
-      console.log(`로그 저장 성공: ${req.originalUrl}`);
+      console.log(`로그 저장 성공`);
     } catch (err) {
       console.error("로그 저장 실패:", err);
     }
