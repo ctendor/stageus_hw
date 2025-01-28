@@ -1,13 +1,21 @@
-const { getFilteredLogs } = require("./logService");
-const asyncWrapper = require("../utils/asyncWrapper");
+const { Log } = require("../utils/logger");
 
-const getLogsController = asyncWrapper(async (req, res) => {
-  const { userId, startDate, endDate, sort = "desc" } = req.query;
+const getFilteredLogs = async ({ userId, startDate, endDate, sort }) => {
+  const filter = {};
 
-  // Service를 호출하여 필터링된 로그 가져오기
-  const logs = await getFilteredLogs({ userId, startDate, endDate, sort });
+  if (userId) {
+    filter.userId = userId;
+  }
 
-  res.status(200).send(logs);
-});
+  if (startDate || endDate) {
+    filter.date = {};
+    if (startDate) filter.date.$gte = new Date(startDate);
+    if (endDate) filter.date.$lte = new Date(endDate);
+  }
 
-module.exports = { getLogsController };
+  const logs = await Log.find(filter).sort({ date: sort === "asc" ? 1 : -1 });
+
+  return logs;
+};
+
+module.exports = { getFilteredLogs };

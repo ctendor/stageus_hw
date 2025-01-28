@@ -15,3 +15,4 @@ const findResourceById = async (table, id) => {
 module.exports = {
   findResourceById,
 };
+//미들웨어로 할 바엔 그냥 서비스에 기능 추가

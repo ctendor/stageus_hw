@@ -1,12 +1,11 @@
-const mongoose = require("mongoose");
-
+const mongoose = require("mongoose"); //ORM, ODM 
 const logSchema = new mongoose.Schema({
   userId: { type: Number, required: false },
   date: { type: Date, required: true, default: Date.now },
   request: {
     url: String,
     method: String,
-    body: mongoose.Schema.Types.Mixed,
+    body: mongoose.Schema.Types.Mixed, //=> Mixed가 필요가 없음 굳이...
     headers: mongoose.Schema.Types.Mixed,
   },
   response: {
@@ -29,7 +28,7 @@ const saveLog = async (logData) => {
     console.log("로그 저장 성공:", logData);
   } catch (err) {
     console.error("로그 저장 실패:", err);
-  }
+  } // try-catch 중복 없애기.....
 };
 
 module.exports = { saveLog, Log };

@@ -9,7 +9,7 @@ const dbMiddleware = require("../utils/dbConnect");
 const router = express.Router();
 router.use(dbMiddleware);
 
-router.get(
+router.get(  
   "/:articleIdx/comments",
   validateRequest({
     params: {
