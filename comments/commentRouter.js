@@ -1,15 +1,15 @@
 const express = require("express");
 const commentController = require("./commentController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { checkOwnership } = require("../middlewares/checkOwnership");
+const checkOwnership = require("../middlewares/checkOwnership"); // 수정됨
 const { validateRequest } = require("../middlewares/validationMiddleware");
 const { idxRegx, commentRegx } = require("../constants/regx");
-const dbMiddleware = require("../utils/dbConnect");
+const { dbUtils } = require("../utils/dbConnect"); // 수정됨
 
 const router = express.Router();
-router.use(dbMiddleware);
+router.use(dbUtils);
 
-router.get(  
+router.get(
   "/:articleIdx/comments",
   validateRequest({
     params: {

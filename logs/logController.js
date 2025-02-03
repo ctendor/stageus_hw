@@ -1,12 +1,25 @@
-const { getFilteredLogs } = require("./logService");
-const asyncWrapper = require("../utils/asyncWrapper");
+// logs/logController.js
+const logService = require("./logService");
 
-const getLogsController = asyncWrapper(async (req, res) => {
-  const { userId, startDate, endDate, sort = "desc" } = req.query;
+/**
+ * 관리자 전용 로그 조회
+ * GET /logs?order=asc|desc&useridx=xxx&startDate=yyyy-mm-dd&endDate=yyyy-mm-dd
+ */
+const getLogsController = async (req, res, next) => {
+  try {
+    const { order, useridx, startDate, endDate } = req.query;
+    const logs = await logService.getLogs({
+      order,
+      useridx,
+      startDate,
+      endDate,
+    });
+    return res.status(200).json(logs);
+  } catch (error) {
+    next(error);
+  }
+};
 
-  const logs = await getFilteredLogs({ userId, startDate, endDate, sort });
-
-  res.status(200).send(logs);
-});
-
-module.exports = { getLogsController };
+module.exports = {
+  getLogsController,
+};

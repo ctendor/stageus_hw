@@ -1,13 +1,12 @@
 const express = require("express");
 const articleController = require("./articleController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { checkOwnership } = require("../middlewares/checkOwnership");
-const dbMiddleware = require("../utils/dbConnect");
+const checkOwnership = require("../middlewares/checkOwnership"); // 구조 분해 제거
+const { dbUtils } = require("../utils/dbConnect");
 
 const router = express.Router();
 
-router.use(dbMiddleware);
-router.use(checkOwnership);
+router.use(dbUtils);
 
 router.get("/", articleController.getArticles);
 router.get("/:id", articleController.getArticle);

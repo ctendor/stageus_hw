@@ -10,10 +10,8 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.connect();
-
 const dbUtils = async (req, res, next) => {
-  const client = await dbUtils.connect();
+  const client = await pool.connect();
   req.dbClient = client;
   try {
     await next();
@@ -23,4 +21,5 @@ const dbUtils = async (req, res, next) => {
     client.release();
   }
 };
+
 module.exports = { pool, dbUtils };

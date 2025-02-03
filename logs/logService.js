@@ -1,21 +1,43 @@
-const { Log } = require("../utils/logger");
+// logs/logService.js
+const Log = require("./logModel");
 
-const getFilteredLogs = async ({ userId, startDate, endDate, sort }) => {
-  const filter = {};
+/**
+ * 로그 생성 (Service)
+ * @param {object} logData - 로그 저장용 데이터
+ */
+const createLog = async (logData) => {
+  return await Log.create(logData);
+};
 
-  if (userId) {
-    filter.userId = userId;
+/**
+ * 로그 조회 (Service)
+ * @param {object} filters - { useridx, startDate, endDate, order }
+ * @returns {Promise<Log[]>} 조회 결과
+ */
+const getLogs = async (filters) => {
+  let { useridx, startDate, endDate, order = "asc" } = filters;
+  const sortOrder = order === "desc" ? -1 : 1;
+
+  const query = {};
+  if (useridx) {
+    query.useridx = useridx;
   }
-
   if (startDate || endDate) {
-    filter.date = {};
-    if (startDate) filter.date.$gte = new Date(startDate);
-    if (endDate) filter.date.$lte = new Date(endDate);
+    query.date = {};
+    if (startDate) {
+      query.date.$gte = new Date(startDate);
+    }
+    if (endDate) {
+      query.date.$lte = new Date(endDate);
+    }
   }
 
-  const logs = await Log.find(filter).sort({ date: sort === "asc" ? 1 : -1 });
-
+  // 정렬: date 기준 asc|desc
+  const logs = await Log.find(query).sort({ date: sortOrder });
   return logs;
 };
 
-module.exports = { getFilteredLogs };
+module.exports = {
+  createLog,
+  getLogs,
+};
