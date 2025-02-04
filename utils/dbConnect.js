@@ -10,7 +10,6 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-// query 함수 추가: pool.query를 래핑합니다.
 const query = (text, params) => pool.query(text, params);
 
 const dbUtils = async (req, res, next) => {

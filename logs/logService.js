@@ -32,7 +32,7 @@ const getLogs = async (filters) => {
     }
   }
 
-  // 정렬: date 기준 asc|desc
+  // date 기준 정렬
   const logs = await Log.find(query).sort({ date: sortOrder });
   return logs;
 };

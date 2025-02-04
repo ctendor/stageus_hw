@@ -1,5 +1,3 @@
-// users/userController.js
-
 const userService = require("./userService");
 const asyncWrapper = require("../utils/asyncWrapper");
 const customError = require("../utils/customError");
