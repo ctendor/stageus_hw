@@ -7,11 +7,12 @@ const customError = require("./utils/customError");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
 const logMiddleware = require("./middlewares/logMiddleware");
-
+const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
+app.use(cors());
 
 // 모든 요청에 대해 로깅 수행
 app.use(logMiddleware);

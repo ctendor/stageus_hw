@@ -1,4 +1,4 @@
-// middlewares/logMiddleware.js
+// middlewares/.js
 const Log = require("../logs/logModel");
 
 module.exports = function logMiddleware(req, res, next) {

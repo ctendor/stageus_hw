@@ -1,5 +1,5 @@
+// utils/dbConnect.js
 require("dotenv").config();
-
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -9,6 +9,9 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
 });
+
+// query 함수 추가: pool.query를 래핑합니다.
+const query = (text, params) => pool.query(text, params);
 
 const dbUtils = async (req, res, next) => {
   const client = await pool.connect();
@@ -22,4 +25,4 @@ const dbUtils = async (req, res, next) => {
   }
 };
 
-module.exports = { pool, dbUtils };
+module.exports = { pool, query, dbUtils };

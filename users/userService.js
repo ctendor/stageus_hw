@@ -4,11 +4,9 @@ const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 const jwt = require("jsonwebtoken");
 
-// 실제 앱에서는 .env에서 불러오기
-const JWT_SECRET = process.env.JWT_SECRET || "YOUR_JWT_SECRET";
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "15m";
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || "YOUR_REFRESH_SECRET";
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
 
 // 회원가입
@@ -97,30 +95,32 @@ const refreshAccessToken = async (token) => {
   }
 };
 
-/**
- * 카카오 사용자 정보로 기존 사용자 조회 또는 신규 가입 처리
- * kakaoUser: 카카오 API 응답 데이터
- */
 const findOrCreateKakaoUser = async (kakaoUser) => {
-  // 카카오 API 응답 구조에 따라 적절한 값을 추출합니다.
   const kakaoId = kakaoUser.id;
   const username = `kakao_${kakaoId}`;
-  // 이미 가입된 사용자 조회
-  const query = await db.query("SELECT * FROM users WHERE username = $1", [
+  const nickname = kakaoUser.properties?.nickname || "Kakao User";
+
+  // 기존 사용자 조회
+  const checkQuery = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
   ]);
-  if (query.rows.length > 0) {
-    return query.rows[0];
+
+  if (checkQuery.rows.length > 0) {
+    // 이미 존재하는 사용자면 그대로 반환
+    return checkQuery.rows[0];
   } else {
-    // 신규 사용자 가입 (필요한 경우 추가 정보를 저장)
-    const result = await db.query(
-      "INSERT INTO users (username, name, createdAt) VALUES ($1, $2, NOW()) RETURNING *",
-      [username, kakaoUser.properties?.nickname || "Kakao User"]
+    const dummyPassword = "KAKAO_" + Math.random().toString(36).slice(2);
+
+    const insertQuery = await db.query(
+      "INSERT INTO users (username, password, name, createdAt) VALUES ($1, $2, $3, NOW()) RETURNING *",
+      [username, dummyPassword, nickname]
     );
-    if (!result.rows[0]) {
+
+    if (insertQuery.rows.length === 0) {
       throw customError("카카오 사용자 등록에 실패했습니다.", 500);
     }
-    return result.rows[0];
+
+    return insertQuery.rows[0];
   }
 };
 
@@ -132,5 +132,5 @@ module.exports = {
   generateAccessToken,
   generateRefreshToken,
   refreshAccessToken,
-  findOrCreateKakaoUser, // 추가
+  findOrCreateKakaoUser,
 };

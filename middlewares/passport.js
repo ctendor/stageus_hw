@@ -1,5 +1,3 @@
-// middlewares/passport.js
-
 const passport = require("passport");
 const KakaoStrategy = require("passport-kakao").Strategy;
 const authService = require("../users/authService");

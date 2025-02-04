@@ -148,6 +148,9 @@ const kakaoCallback = asyncWrapper(async (req, res) => {
     accessToken,
     refreshToken,
   });
+  return res.redirect(
+    "file:///Users/tk/Desktop/STUDY/stageus/homework/index.html"
+  );
 });
 
 module.exports = {
