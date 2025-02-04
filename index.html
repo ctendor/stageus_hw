@@ -7,7 +7,6 @@
   <body>
     <h1>API 기능 테스트</h1>
 
-    <!-- 회원가입 -->
     <section id="registerSection">
       <h2>회원가입</h2>
       <form id="registerForm">
@@ -28,7 +27,6 @@
       <div id="registerResult"></div>
     </section>
 
-    <!-- 로그인 -->
     <section id="loginSection">
       <h2>로그인</h2>
       <form id="loginForm">
@@ -45,35 +43,30 @@
       <div id="loginResult"></div>
     </section>
 
-    <!-- 로그아웃 -->
     <section id="logoutSection">
       <h2>로그아웃</h2>
       <button id="logoutBtn">로그아웃</button>
       <div id="logoutResult"></div>
     </section>
 
-    <!-- 액세스 토큰 재발급 -->
     <section id="refreshSection">
       <h2>액세스 토큰 재발급</h2>
       <button id="refreshBtn">새 토큰 발급</button>
       <div id="refreshResult"></div>
     </section>
 
-    <!-- 내 정보 조회 -->
     <section id="userInfoSection">
       <h2>내 정보 조회</h2>
       <button id="getUserInfoBtn">내 정보 조회</button>
       <div id="userInfoResult"></div>
     </section>
 
-    <!-- 내 글 조회 -->
     <section id="articlesSection">
       <h2>내 글 조회</h2>
       <button id="getMyArticlesBtn">내 글 조회</button>
       <div id="myArticlesResult"></div>
     </section>
 
-    <!-- 내 댓글 조회 -->
     <section id="commentsSection">
       <h2>내 댓글 조회</h2>
       <button id="getMyCommentsBtn">내 댓글 조회</button>
@@ -100,11 +93,10 @@
       <div id="createArticleResult"></div>
     </section>
 
-    <!-- 댓글 작성 -->
     <section>
       <h2>댓글 작성</h2>
       <form id="createCommentForm">
-        <label for="articleIdx">게시글 ID</label><br />
+        <input type="number" for="articleIdx" />게시글 ID<br />
         <input type="number" name="articleIdx" required /><br /><br />
 
         <label for="content">댓글 내용</label><br />
@@ -115,10 +107,8 @@
       <div id="createCommentResult"></div>
     </section>
 
-    <!-- 카카오 로그인 -->
     <section id="kakaoLoginSection">
       <h2>카카오 로그인</h2>
-      <!-- 카카오 로그인은 별도 페이지로 리다이렉트 -->
       <a href="http://localhost:8000/users/kakao">카카오 로그인</a>
     </section>
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const logController = require("./logController");
-const { dbUtils } = require("../utils/dbConnect"); // 데이터베이스 연결 미들웨어 (별도 설정)
+const { dbUtils } = require("../utils/dbConnect");
 const authMiddleware = require("../middlewares/authMiddleware");
 const roleGuard = require("../middlewares/roleGuard");
 

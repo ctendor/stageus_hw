@@ -1,10 +1,6 @@
 const passport = require("passport");
 const KakaoStrategy = require("passport-kakao").Strategy;
-const authService = require("../users/authService");
-const {
-  KAKAO_CLIENT_ID,
-  KAKAO_CALLBACK_URL,
-} = require("../constants/constants"); // ← 경로 수정
+const userService = require("../users/userService");
 
 passport.use(
   new KakaoStrategy(
@@ -14,7 +10,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const user = await authService.findOrCreateKakaoUser(
+        const user = await userService.findOrCreateKakaoUser(
           profile,
           accessToken
         );
@@ -26,11 +22,10 @@ passport.use(
   )
 );
 
-// 세션 사용 안 해도 내부적으로 serialize/deserialize
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await authService.getUserById(id);
+    const user = await userService.getUserById(id);
     done(null, user);
   } catch (err) {
     done(err, null);

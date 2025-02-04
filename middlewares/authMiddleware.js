@@ -4,6 +4,15 @@ const asyncWrapper = require("../utils/asyncWrapper");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const verifyJwt = (token, secret) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) return reject(customError("유효하지 않은 토큰입니다.", 401));
+      resolve(decoded);
+    });
+  });
+};
+
 module.exports = asyncWrapper(async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -15,14 +24,10 @@ module.exports = asyncWrapper(async (req, res, next) => {
     throw customError("잘못된 토큰 형식입니다.", 401);
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = {
-      id: decoded.id,
-      role: decoded.role,
-    };
-    next();
-  } catch (err) {
-    throw customError("유효하지 않은 토큰입니다.", 401);
-  }
+  const decoded = await verifyJwt(token, JWT_SECRET);
+  req.user = {
+    id: decoded.id,
+    role: decoded.role,
+  };
+  next();
 });

@@ -1,5 +1,3 @@
-// users/userService.js
-
 const db = require("../utils/dbConnect");
 const customError = require("../utils/customError");
 const jwt = require("jsonwebtoken");
@@ -9,7 +7,6 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "15m";
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
 
-// 회원가입
 const registerUser = async ({ username, password, name }) => {
   const existing = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
@@ -27,7 +24,6 @@ const registerUser = async ({ username, password, name }) => {
   return result.rows[0];
 };
 
-// 아이디/비번 확인
 const authenticateUser = async ({ username, password }) => {
   const query = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
@@ -58,14 +54,12 @@ const getCommentsByUser = async (userId) => {
   return comments.rows;
 };
 
-/** Access Token 생성 (유효기간 짧게) */
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.idx, role: user.role || "user" }, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 };
 
-/** Refresh Token 생성 (유효기간 길게) */
 const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user.idx, role: user.role || "user" },
@@ -76,9 +70,6 @@ const generateRefreshToken = (user) => {
   );
 };
 
-/**
- * Refresh Token 검증 후 새 Access Token 발급
- */
 const refreshAccessToken = async (token) => {
   try {
     const decoded = jwt.verify(token, JWT_REFRESH_SECRET);
@@ -100,13 +91,11 @@ const findOrCreateKakaoUser = async (kakaoUser) => {
   const username = `kakao_${kakaoId}`;
   const nickname = kakaoUser.properties?.nickname || "Kakao User";
 
-  // 기존 사용자 조회
   const checkQuery = await db.query("SELECT * FROM users WHERE username = $1", [
     username,
   ]);
 
   if (checkQuery.rows.length > 0) {
-    // 이미 존재하는 사용자면 그대로 반환
     return checkQuery.rows[0];
   } else {
     const dummyPassword = "KAKAO_" + Math.random().toString(36).slice(2);
