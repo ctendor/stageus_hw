@@ -5,7 +5,6 @@ const { validateRequest } = require("../middlewares/validationMiddleware");
 const { usernameRegx, passwordRegx } = require("../constants/regx");
 const axios = require("axios");
 
-// 1) 회원가입
 const register = [
   validateRequest({
     body: {

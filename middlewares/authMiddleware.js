@@ -23,7 +23,6 @@ module.exports = asyncWrapper(async (req, res, next) => {
     };
     next();
   } catch (err) {
-    // JWT 검증 실패 시 직접 에러 메시지와 상태 코드를 설정
     throw customError("유효하지 않은 토큰입니다.", 401);
   }
 });
