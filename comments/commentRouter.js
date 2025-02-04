@@ -4,7 +4,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const checkOwnership = require("../middlewares/checkOwnership"); // 수정됨
 const { validateRequest } = require("../middlewares/validationMiddleware");
 const { idxRegx, commentRegx } = require("../constants/regx");
-const { dbUtils } = require("../utils/dbConnect"); // 수정됨
+const { dbUtils } = require("../utils/dbConnect");
 
 const router = express.Router();
 router.use(dbUtils);

@@ -152,3 +152,74 @@ document.getElementById("getMyCommentsBtn").addEventListener(
       JSON.stringify(data);
   }, "myCommentsResult")
 );
+
+document
+  .getElementById("createArticleForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem(TOKEN_KEY); // 로그인 후 저장된 토큰
+    if (!token) {
+      document.getElementById("createArticleResult").innerText =
+        "로그인이 필요합니다.";
+      return;
+    }
+
+    const formData = new FormData(e.target);
+    const payload = {
+      title: formData.get("title"),
+      content: formData.get("content"),
+      category: formData.get("category"),
+    };
+
+    try {
+      const data = await request(`${API_BASE}/articles`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // 토큰
+        },
+        body: JSON.stringify(payload),
+      });
+      document.getElementById("createArticleResult").innerText =
+        "게시글 작성 성공: " + JSON.stringify(data);
+    } catch (err) {
+      document.getElementById("createArticleResult").innerText = err.message;
+    }
+  });
+
+// 2) 댓글 작성
+document
+  .getElementById("createCommentForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      document.getElementById("createCommentResult").innerText =
+        "로그인이 필요합니다.";
+      return;
+    }
+
+    const formData = new FormData(e.target);
+    const articleIdx = formData.get("articleIdx"); // 댓글을 달 게시글 ID
+    const payload = {
+      content: formData.get("content"),
+    };
+
+    try {
+      const data = await request(
+        `${API_BASE}/comments/${articleIdx}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      document.getElementById("createCommentResult").innerText =
+        "댓글 작성 성공: " + JSON.stringify(data);
+    } catch (err) {
+      document.getElementById("createCommentResult").innerText = err.message;
+    }
+  });

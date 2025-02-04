@@ -80,6 +80,41 @@
       <div id="myCommentsResult"></div>
     </section>
 
+    <section>
+      <h2>게시글 작성</h2>
+      <form id="createArticleForm">
+        <label for="title">제목</label><br />
+        <input type="text" name="title" required /><br /><br />
+
+        <label for="content">내용</label><br />
+        <textarea name="content" rows="4" required></textarea><br /><br />
+
+        <label for="category">카테고리</label><br />
+        <select name="category" required>
+          <option value="1">공지사항</option>
+          <option value="2">자유게시판</option></select
+        ><br /><br />
+
+        <button type="submit">게시글 작성</button>
+      </form>
+      <div id="createArticleResult"></div>
+    </section>
+
+    <!-- 댓글 작성 -->
+    <section>
+      <h2>댓글 작성</h2>
+      <form id="createCommentForm">
+        <label for="articleIdx">게시글 ID</label><br />
+        <input type="number" name="articleIdx" required /><br /><br />
+
+        <label for="content">댓글 내용</label><br />
+        <textarea name="content" rows="3" required></textarea><br /><br />
+
+        <button type="submit">댓글 작성</button>
+      </form>
+      <div id="createCommentResult"></div>
+    </section>
+
     <!-- 카카오 로그인 -->
     <section id="kakaoLoginSection">
       <h2>카카오 로그인</h2>
