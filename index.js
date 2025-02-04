@@ -7,10 +7,12 @@ const customError = require("./utils/customError");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
 const logMiddleware = require("./middlewares/logMiddleware");
+const connectMongoose = require("./utils/mongooseConnect");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+connectMongoose();
 app.use(express.json());
 app.use(cors());
 
